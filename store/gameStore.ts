@@ -29,6 +29,7 @@ type GamePhase = 'LOBBY' | 'PLAYING' | 'PAUSED' | 'GAME_OVER';
  */
 interface GameState {
   phase: GamePhase;
+  levelVersion: number; // Used to key level components for reset
   
   // --- Torch Slice ---
   torch: TorchState;
@@ -38,6 +39,7 @@ interface GameState {
   pauseGame: () => void;
   resumeGame: () => void;
   endGame: () => void;
+  resetLevel: () => void;
   
   toggleTorch: () => void;
   toggleUV: () => void; // New action
@@ -47,14 +49,15 @@ interface GameState {
 
 export const useGameStore = create<GameState>((set) => ({
   phase: 'LOBBY',
+  levelVersion: 0,
 
   // Initial Torch State
   torch: {
     isOn: true,
     isUV: false,
     color: '#FDFBD3', // Warm tungsten default
-    intensity: 2.0,
-    range: 12,
+    intensity: 5.0, // Increased for better visibility with ambient light
+    range: 15,
     angle: 0.6,
     flickerConfig: {
       active: false,
@@ -67,6 +70,8 @@ export const useGameStore = create<GameState>((set) => ({
   pauseGame: () => set({ phase: 'PAUSED' }),
   resumeGame: () => set({ phase: 'PLAYING' }),
   endGame: () => set({ phase: 'GAME_OVER' }),
+  
+  resetLevel: () => set((state) => ({ levelVersion: state.levelVersion + 1 })),
 
   toggleTorch: () =>
     set((state) => ({

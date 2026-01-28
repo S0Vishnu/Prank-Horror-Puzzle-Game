@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { MathUtils } from 'three';
+import { Mesh } from 'three';
+import { usePhysicsStore } from '../../../store/physicsStore';
 
 interface FallingDoorProps {
   position: [number, number, number];
@@ -9,8 +10,24 @@ interface FallingDoorProps {
 
 export const FallingDoor: React.FC<FallingDoorProps> = ({ position, triggered }) => {
   const groupRef = useRef<any>(null);
+  const meshRef = useRef<Mesh>(null);
+  const register = usePhysicsStore((state) => state.registerCollider);
+  const unregister = usePhysicsStore((state) => state.unregisterCollider);
+
   const [velocity, setVelocity] = useState(0);
   const [angle, setAngle] = useState(0);
+
+  // Register Physics
+  useEffect(() => {
+    if (meshRef.current) {
+      // Ensure bounding box is computed for the dynamic object
+      meshRef.current.geometry.computeBoundingBox();
+      register(meshRef.current);
+    }
+    return () => {
+      if (meshRef.current) unregister(meshRef.current);
+    };
+  }, [register, unregister]);
 
   useFrame((state, delta) => {
     if (triggered && angle > -Math.PI / 2) {
@@ -36,7 +53,7 @@ export const FallingDoor: React.FC<FallingDoorProps> = ({ position, triggered })
     <group ref={groupRef} position={position} rotation={[angle, 0, 0]}>
         {/* Pivot Point adjustment: The door rotates around its bottom edge */}
         <group position={[0, 1.5, 0]}> 
-           <mesh castShadow receiveShadow>
+           <mesh ref={meshRef} castShadow receiveShadow>
              <boxGeometry args={[2, 3, 0.1]} />
              <meshStandardMaterial color="#8B4513" />
              {/* Door Knob */}

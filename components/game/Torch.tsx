@@ -4,6 +4,11 @@ import { SpotLight } from '@react-three/drei';
 import { Vector3, SpotLight as ThreeSpotLight, Object3D, MathUtils } from 'three';
 import { useGameStore } from '../../store/gameStore';
 
+// Simple pseudo-random noise generator
+const noise = (x: number) => {
+  return Math.sin(x) * 0.5 + Math.sin(x * 2.3) * 0.3 + Math.sin(x * 4.7) * 0.2;
+};
+
 /**
  * A state-driven flashlight component.
  * It strictly follows the camera position (simulating a held item)
@@ -54,15 +59,17 @@ export const Torch: React.FC = () => {
     
     if (isOn && flickerConfig.active) {
       const time = clock.elapsedTime;
-      // Combine two sine waves for a more irregular pulse
-      const noise = Math.sin(time * flickerConfig.speed) + 
-                    Math.sin(time * flickerConfig.speed * 2.5) * 0.5;
+      // Multi-layered sine waves for "organic" bad connection feel
+      const n = noise(time * flickerConfig.speed);
+      
+      // Occasional deep dips (simulating loose contact)
+      const sharpDip = Math.random() > 0.95 ? 0.0 : 1.0;
       
       // Apply variance
-      const flickerFactor = 1 + (noise * flickerConfig.variance);
-      
-      // Clamp to ensure we don't get negative light (unless intended)
-      currentIntensity = MathUtils.clamp(intensity * flickerFactor, 0.1, intensity * 2);
+      // Base intensity + (Noise * Variance * Intensity)
+      // Then multiply by sharpDip to simulate total cutouts
+      const flickerMod = 1 + (n * flickerConfig.variance);
+      currentIntensity = MathUtils.clamp(intensity * flickerMod * sharpDip, 0, intensity * 2);
     }
 
     // Apply final intensity (0 if off)

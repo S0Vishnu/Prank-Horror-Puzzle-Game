@@ -17,23 +17,26 @@ const keyboardMap = [
 
 export const World: React.FC = () => {
   const phase = useGameStore((state) => state.phase);
+  const levelVersion = useGameStore((state) => state.levelVersion);
 
   return (
     <div id="game-root" className="w-full h-screen bg-black">
       <KeyboardControls map={keyboardMap}>
         <Canvas shadows camera={{ fov: 75 }}>
           {/* --- Environment --- */}
-          <color attach="background" args={['#050505']} />
-          <Sky sunPosition={[0, 0, -1]} inclination={0.2} azimuth={180} />
+          <color attach="background" args={['#020202']} />
+          <Sky sunPosition={[0, -10, -100]} inclination={0.2} azimuth={180} />
           <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
           
-          <ambientLight intensity={0.1} />
+          {/* Mild Ambient Light so total darkness isn't pitch black */}
+          <ambientLight intensity={0.2} color="#1a1a2e" />
           
           {/* --- Game Objects --- */}
           {phase === 'PLAYING' && <Player />}
 
           {/* --- Level Management --- */}
-          <Level1 />
+          {/* Keying by levelVersion forces a full re-mount of the level, resetting local state */}
+          <Level1 key={levelVersion} />
           
         </Canvas>
       </KeyboardControls>
