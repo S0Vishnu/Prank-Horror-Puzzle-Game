@@ -4,6 +4,11 @@ import { Sidebar } from './Sidebar';
 import { AssetsView } from './phases/AssetsView';
 import { DesignView } from './phases/DesignView';
 import { SystemsView } from './phases/SystemsView';
+import { LevelsView } from './phases/LevelsView';
+import { UiUxView } from './phases/UiUxView';
+import { AudioView } from './phases/AudioView';
+import { MultiplayerView } from './phases/MultiplayerView';
+import { PerformanceView } from './phases/PerformanceView';
 import { useDashboard } from '../../contexts/DashboardContext';
 
 export const DashboardLayout: React.FC = () => {
@@ -20,6 +25,11 @@ export const DashboardLayout: React.FC = () => {
           {activeTab === 'assets' && <AssetsView />}
           {activeTab === 'design' && <DesignView />}
           {activeTab === 'systems' && <SystemsView />}
+          {activeTab === 'levels' && <LevelsView />}
+          {activeTab === 'ui' && <UiUxView />}
+          {activeTab === 'audio' && <AudioView />}
+          {activeTab === 'multiplayer' && <MultiplayerView />}
+          {activeTab === 'optimization' && <PerformanceView />}
         </div>
       </main>
     </div>

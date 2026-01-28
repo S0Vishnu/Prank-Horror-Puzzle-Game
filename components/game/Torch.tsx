@@ -15,13 +15,11 @@ export const Torch: React.FC = () => {
   const scene = useThree((state) => state.scene);
 
   // Subscribe to store state
-  const { isOn, color, intensity, range, angle, flickerConfig } = useGameStore(
+  const { isOn, isUV, color, intensity, range, angle, flickerConfig } = useGameStore(
     (state) => state.torch
   );
 
   // Add the target object to the scene graph manually so the SpotLight can track it.
-  // We do this because the target needs to exist in the world, but not necessarily 
-  // as a child of the Torch component if we want absolute positioning logic.
   useEffect(() => {
     scene.add(targetRef.current);
     return () => {
@@ -71,15 +69,18 @@ export const Torch: React.FC = () => {
     lightRef.current.intensity = isOn ? currentIntensity : 0;
   });
 
+  // Determine active color: UV Purple or State Color
+  const activeColor = isUV ? '#8800FF' : color;
+
   return (
     <SpotLight
       ref={lightRef}
-      color={color}
+      color={activeColor}
       distance={range}
       angle={angle}
       attenuation={5}
-      anglePower={5} // High anglePower creates a sharper edge, more like a flashlight
-      penumbra={0.2} // Soft edge
+      anglePower={5}
+      penumbra={0.2} 
       castShadow
       shadow-bias={-0.0001}
     />

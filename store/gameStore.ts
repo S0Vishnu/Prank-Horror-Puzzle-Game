@@ -14,6 +14,7 @@ interface FlickerConfig {
  */
 interface TorchState {
   isOn: boolean;
+  isUV: boolean; // New: UV Mode
   color: string;
   intensity: number;
   range: number;
@@ -21,25 +22,36 @@ interface TorchState {
   flickerConfig: FlickerConfig;
 }
 
+type GamePhase = 'LOBBY' | 'PLAYING' | 'PAUSED' | 'GAME_OVER';
+
 /**
  * Global Game State.
  */
 interface GameState {
+  phase: GamePhase;
+  
   // --- Torch Slice ---
   torch: TorchState;
+  
+  // --- Actions ---
+  startGame: () => void;
+  pauseGame: () => void;
+  resumeGame: () => void;
+  endGame: () => void;
+  
   toggleTorch: () => void;
+  toggleUV: () => void; // New action
   setTorchProperties: (props: Partial<TorchState>) => void;
   setTorchFlicker: (active: boolean, speed?: number, variance?: number) => void;
-
-  // --- Level/World Slice (Placeholder for Phase 4) ---
-  levelIndex: number;
-  isPaused: boolean;
 }
 
 export const useGameStore = create<GameState>((set) => ({
+  phase: 'LOBBY',
+
   // Initial Torch State
   torch: {
     isOn: true,
+    isUV: false,
     color: '#FDFBD3', // Warm tungsten default
     intensity: 2.0,
     range: 12,
@@ -51,15 +63,19 @@ export const useGameStore = create<GameState>((set) => ({
     },
   },
 
-  // Initial World State
-  levelIndex: 0,
-  isPaused: false,
-
-  // --- Actions ---
+  startGame: () => set({ phase: 'PLAYING' }),
+  pauseGame: () => set({ phase: 'PAUSED' }),
+  resumeGame: () => set({ phase: 'PLAYING' }),
+  endGame: () => set({ phase: 'GAME_OVER' }),
 
   toggleTorch: () =>
     set((state) => ({
       torch: { ...state.torch, isOn: !state.torch.isOn },
+    })),
+
+  toggleUV: () =>
+    set((state) => ({
+      torch: { ...state.torch, isUV: !state.torch.isUV },
     })),
 
   setTorchProperties: (props) =>

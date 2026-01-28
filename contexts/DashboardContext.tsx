@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-export type Tab = 'assets' | 'design' | 'systems';
+export type Tab = 'assets' | 'design' | 'systems' | 'levels' | 'ui' | 'audio' | 'multiplayer' | 'optimization';
 
 interface DashboardContextType {
   activeTab: Tab;

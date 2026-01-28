@@ -1,9 +1,12 @@
 import React, { createContext, useContext, ReactNode, useRef } from 'react';
 import { useGameStore } from '../store/gameStore';
+import { triggerNarrator } from '../components/game/systems/Narrator';
 
 // Placeholder for future System classes
 class NarratorSystem {
-  speak(text: string) { console.log(`[Narrator]: ${text}`); }
+  speak(text: string) { 
+    triggerNarrator(text);
+  }
 }
 
 class PrankSystem {
@@ -21,23 +24,16 @@ const GameLogicContext = createContext<GameLogicContextType | undefined>(undefin
 
 export const GameLogicProvider = ({ children }: { children: ReactNode }) => {
   // We use refs for systems to avoid re-renders when internal system state changes
-  // This is crucial for game loop performance vs React render cycle
   const narratorRef = useRef(new NarratorSystem());
   const prankRef = useRef(new PrankSystem());
   
-  // Access zustand store for state updates
-  const setGamePaused = useGameStore((state) => (paused: boolean) => {
-     // implementation would go here if we exposed a setPaused action in store
-     console.log("Game Pause State:", paused);
-  });
-
   const startGame = () => {
-    console.log("Initializing Game Loop...");
-    narratorRef.current.speak("Welcome to the test environment.");
+    useGameStore.getState().startGame();
+    triggerNarrator("Welcome to the initiative. Walk through the door.");
   };
 
   const pauseGame = () => {
-    console.log("Pausing Game Loop...");
+    useGameStore.setState({ phase: 'PAUSED' });
   };
 
   return (
